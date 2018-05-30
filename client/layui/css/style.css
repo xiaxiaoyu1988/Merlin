@@ -1,10 +1,10 @@
 .merlin-header{
     height: 50px;
-    border-bottom: 1px solid rgb(204, 203, 203);
+    /* border-bottom: 1px solid rgb(204, 203, 203); */
 }
 
 .merlin-header-update{
-    float: right;
+    text-align: right;
 }
 
 .merlin-header-item{
@@ -14,5 +14,29 @@
 .merlin-header-item-btn
 {
     padding-top: 6px;
-    padding-left: 130px;
+    text-align: right;
+}
+
+.flow-default {
+    width: 100%;
+    height: 500px;
+    overflow: auto;
+    font-size: 0;
+}
+
+.flow-default li {
+    display: inline-block;
+    margin: 0 8px;
+    font-size: 14px;
+    width: 200px;
+    margin-bottom: 10px;
+    /* height: 90px; */
+    /* line-height: 100px; */
+    text-align: center;
+    /* background-color: #eee; */
+}
+
+.flow-default img {
+    width: 100%;
+    height: 100%;
 }

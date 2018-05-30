@@ -11,44 +11,47 @@
  
 <div class="layui-container" style="width: 100%;">
     <div class="layui-row merlin-header">
-        <div class="layui-col-md3 layui-col-sm3 merlin-header-item">
+        <div class="layui-col-md3 layui-col-sm3 layui-col-xs3 merlin-header-item">
             <p class="layui-text">Header</p>
         </div>
-        <div class="layui-col-md6 layui-col-sm6 merlin-header-item">
+        <div class="layui-col-md6 layui-col-sm6 layui-col-xs6 merlin-header-item">
             <div class="merlin-header-update">
                 <label class="layui-text">正在更新<i class="layui-icon layui-icon-loading layui-icon layui-anim layui-anim-rotate layui-anim-loop"></i></label>
             </div>
         </div>
-        <div class="layui-col-md3 layui-col-sm3 merlin-header-item-btn">
-            <button class="layui-btn layui-btn-normal">更新</button>
+        <div class="layui-col-md3 layui-col-sm3 layui-col-xs3 merlin-header-item-btn">
+            <button class="layui-btn layui-btn-normal ">
+                <i class="layui-icon">&#xe669;</i> 更新
+            </button>
         </div>
     </div>
     <div class="layui-row merlin-body">
-        <div class="layui-col-md3 layui-col-sm3">
-            iamge
+        <div class="layui-col-md12 layui-col-sm12 laiyu-col-xs12">
+            <fieldset class="layui-elem-field layui-field-title">
+                <legend>2018-05-30 11:11:11</legend>
+            </fieldset>
+
+            <ul class="flow-default" style="" id="LAY_demo2"></ul>
         </div>
     </div>
 
     <div class="layui-row merlin-footer">
         <div class="layui-col-md3 layui-col-sm3">
-            more
+        <div id="layer-photos-demo" class="layer-photos-demo">
+            <img layer-src="http://s17.mogucdn.com/p2/161011/upload_279h87jbc9l0hkl54djjjh42dc7i1_800x480.jpg" layer-pid="" src="http://s17.mogucdn.com/p2/161011/upload_279h87jbc9l0hkl54djjjh42dc7i1_800x480.jpg" alt="说好的，一起Fly"
+                layer-index="0">
+            <img layer-src="//res.layui.com/images/fly/layim.jpg" layer-pid="" src="//res.layui.com/images/fly/layim.jpg" alt="LayIM"
+                layer-index="1">
+            <img layer-src="" layer-pid="" src="//file.ynet.com/2/1603/09/10995825.jpg" alt="凤姐是个好人" layer-index="2">
+            <img layer-src="//res.layui.com/images/sentsin/night.gif" layer-pid="" src="//res.layui.com/images/sentsin/night.gif" alt="星空如此深邃"
+                layer-index="3">
+        </div>
         </div>
     </div>
 </div>
 
-<!--         
-        <div class="layui-col-md12">
-            body
-        </div>
-        <div class="layui-col-md12">
-            footer
-        </div>
-    </div>
-<footer class="layui-row">
-    Lisa
-</footer> 
-</div> -->
- 
+            
+            
 <script src="./layui/layui.all.js"></script>
 <script>
 //由于模块都一次性加载，因此不用执行 layui.use() 来加载对应模块，直接使用即可：
@@ -57,7 +60,31 @@
   ,form = layui.form;
   
   layer.msg('Hello World');
+
+    var flow = layui.flow;
+
+    flow.load({
+        elem: '#LAY_demo2' //流加载容器
+        // , scrollElem: '#LAY_demo2' //滚动条所在元素，一般不用填，此处只是演示需要。
+        , isAuto: true
+        , isLazyimg: true
+        , done: function (page, next) { //加载下一页
+            //模拟插入
+            setTimeout(function () {
+                var lis = [];
+                for (var i = 0; i < 6; i++) {
+                    lis.push('<li><img lay-src="http://s17.mogucdn.com/p2/161011/upload_279h87jbc9l0hkl54djjjh42dc7i1_800x480.jpg?v=' + ((page - 1) * 6 + i + 1) + '"></li>')
+                }
+                next(lis.join(''), page < 6); //假设总页数为 6
+            }, 500);
+        }
+    });
 }();
+
+    layer.photos({
+        photos: '#layer-photos-demo'
+        , anim: 5 //0-6的选择，指定弹出图片动画类型，默认随机（请注意，3.0之前的版本用shift参数）
+    }); 
 </script> 
 </body>
 </html>
