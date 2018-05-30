@@ -16,7 +16,7 @@ def login():
 
 
 def main():
-    app = App(width=900, height=520)
+    app = App(title="Merlin", width=900, height=520, icon="./client/Merlin.ico")
     client_path = "file://" + os.getcwd() + "/client/index.html"
     app.init(client_path, debug=True)
     app.run()
