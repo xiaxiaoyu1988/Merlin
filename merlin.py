@@ -16,8 +16,8 @@ def login():
 
 
 def main():
-    app = App()
-    client_path = "file://" + os.getcwd() + "/client/login.html"
+    app = App(width=900, height=520)
+    client_path = "file://" + os.getcwd() + "/client/index.html"
     app.init(client_path, debug=True)
     app.run()
 
