@@ -1,18 +1,34 @@
+#!/usr/bin/env python
+#-*-encoding:UTF-8-*-
 import os
 import sys
 
-sys.path.append(r"./Lisa/src")
+sys.path.append(r"../lisa/src")
 from lisa import App, route, wserver, redirect
 
 
-@route('/login')
-def login():
-	username = wserver.req.params['username']
-	password = wserver.req.params['password']
-	if username == 'admin' and password == '123':
-		return '{"code":0}'
-	else:
-		return '{"code":1}'
+@route('/photos')
+def photos():
+	print 'photos'
+	return '''{
+            "title": "", 
+            "id": 123, 
+            "start": 0,
+  			"data": [ 
+            {
+                "alt": "图片名1",
+                "pid": 666, 
+                "src": "http://s17.mogucdn.com/p2/161011/upload_279h87jbc9l0hkl54djjjh42dc7i1_800x480.jpg", 
+                "thumb": "" 
+            },
+			{
+                "alt": "图片名2",
+                "pid": 667, 
+                "src": "http://s17.mogucdn.com/p2/161011/upload_279h87jbc9l0hkl54djjjh42dc7i1_800x480.jpg", 
+                "thumb": "" 
+            }
+           ]
+        }'''
 
 
 def main():
