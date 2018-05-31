@@ -56,8 +56,8 @@
 <script>
 var layer = layui.layer;
 
-function show_photos() {
-    $.getJSON(BACKEND_BASE_PATH + "/photos", function (json) {
+function show_photos(album_id) {
+    $.getJSON(BACKEND_BASE_PATH + "/photos?album_id=" + album_id, function (json) {
         console.log(json);
         layer.photos({
             photos: json
@@ -83,10 +83,22 @@ function show_photos() {
             //模拟插入
             setTimeout(function () {
                 var lis = [];
-                for (var i = 0; i < 6; i++) {
-                    lis.push('<li><a href="javascript:void(0)" onclick="show_photos()"> <img lay-src="http://s17.mogucdn.com/p2/161011/upload_279h87jbc9l0hkl54djjjh42dc7i1_800x480.jpg?v=' + ((page - 1) * 6 + i + 1) + '"></a></li>')
-                }
-                next(lis.join(''), page < 6); //假设总页数为 6
+                $.ajax({
+                    url: BACKEND_BASE_PATH + "/album?page=" + page,
+                    dataType: 'json',
+                    success: function (res) {
+                        console.log(res);
+                        layui.each(res.data, function (index, item) {
+                            lis.push('<li><a href="javascript:void(0)" onclick="show_photos('+ item.id +')"> <img lay-src="' + item.cover + '"></a><div style="float:right;">' +item.name+ '</li>');
+                        });
+                        next(lis.join(''), page < res.pages);
+                    }
+                });
+
+                // for (var i = 0; i < 6; i++) {
+                //     lis.push('<li><a href="javascript:void(0)" onclick="show_photos()"> <img lay-src="http://s17.mogucdn.com/p2/161011/upload_279h87jbc9l0hkl54djjjh42dc7i1_800x480.jpg?v=' + ((page - 1) * 6 + i + 1) + '"></a></li>')
+                // }
+                // next(lis.join(''), page < 6); //假设总页数为 6
             }, 500);
         }
     });

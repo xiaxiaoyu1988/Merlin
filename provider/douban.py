@@ -13,9 +13,9 @@ import sys
 # from requests.packages.urllib3.exceptions import InsecureRequestWarning
 # requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
-PEOPLE_PATH = './client/people/'
+PEOPLE_PATH = './people/'
 
-AUTHOR_INSERT = 'INSERT INTO "main"."author" ("username", "add_time", "avatar", "location", "comment", "url", "user_id", "author_dir") VALUES("{0}", "{1}", "{2}", "{3}", "{4}", "{5}", "{6}", "{7}")'
+AUTHOR_INSERT = 'INSERT INTO "main"."author" ("username", "add_time", "avatar", "location", "comment", "url", "user_id") VALUES("{0}", "{1}", "{2}", "{3}", "{4}", "{5}", "{6}")'
 ALBUM_INSERT = 'INSERT INTO "main"."album" ("name", "author_id", "datetime", "url") VALUES ("{0}", "{1}", "{2}", "{3}");'
 IMAGE_INSERT = 'INSERT INTO "main"."image" ("name", "author_id", "album_id", "src", "url") VALUES ("{0}", "{1}", "{2}", "{3}", "{4}");'
 
@@ -40,9 +40,13 @@ class Provider(threading.Thread):
             try:
                 time.sleep(1)
                 last_date = self.db.get_last_date()
+                current_date = str(datetime.date.today())
                 # first use
                 if not last_date:
                     last_date = str(datetime.date.today() - datetime.timedelta(days=2))
+                elif current_date == last_date:
+                    print 'update today, continue'
+                    continue
                 self.get_all_topic(last_date)
                 # TODO:update last_date
                 self.db.set('update config set value = "{0}" where name="LAST_DATE"'.format(last_date))
@@ -134,19 +138,22 @@ class Provider(threading.Thread):
                         location = location.encode('utf8')
                     print comment, type(comment)
                     print user_id, type(user_id)
-                    author_dir = PEOPLE_PATH + user_id
-                    avatar_src = author_dir + '/avatar.jpg'
-
-                    print author_dir
-                    print avatar_src
-
-                    self.init_dir(author_dir)
+                    
                     print '--insert author'
                     author_id = self.db.set(AUTHOR_INSERT.format(
                         str(author_name)
                         , str(add_time), str(avatar)
                         , str(location), str(comment), str(author_href)
-                        , str(user_id), str(author_dir)))
+                        , str(user_id))
+                        )
+
+                    author_dir = PEOPLE_PATH + str(author_id)
+                    avatar_src=author_dir + '/avatar.jpg'
+
+                    print author_dir
+                    print avatar_src
+
+                    self.init_dir(author_dir)
                     print '---in download'
                     self.dq.put(
                         {'type': 'author', 'author_id': author_id, 'src': avatar, 'location': avatar_src})
@@ -154,8 +161,8 @@ class Provider(threading.Thread):
         return author_id, author_dir
 
     def init_dir(self, dir_name):
-        if not os.path.exists(dir_name):
-            os.mkdir(dir_name)
+        if not os.path.exists("./client/" + dir_name):
+            os.mkdir("./client/" + dir_name)
     
     def topic(self, author_id, topic_title, topic_href, topic_datetime, author_dir):
         topic_title = topic_title.encode('utf8')
@@ -214,6 +221,7 @@ class Downloader(threading.Thread):
 
     def download_file(self, url, dst):
         try:
+            dst = './client/' + dst
             if not url:
                 return False
             res = r.get(url, headers=self.headers, stream=True, verify=False)
@@ -235,6 +243,7 @@ class Db(object):
         self.c = self.conn.cursor()
     
     def get(self, sql):
+        # print sql
         return self.c.execute(sql)
     
     def set(self, sql):
@@ -252,9 +261,9 @@ class Db(object):
             return row[0]
     
     def is_author_exists(self, author_href):
-        res = self.get('select id, author_dir from author where url = "{0}"'.format(author_href))
+        res = self.get('select id from author where url = "{0}"'.format(author_href))
         for row in res:
-            return row[0], row[1]
+            return row[0], PEOPLE_PATH + str(row[0])
         return (None, None)
     
     def is_album_exists(self, topic_datetime):
