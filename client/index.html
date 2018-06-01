@@ -16,11 +16,11 @@
         </div>
         <div class="layui-col-md6 layui-col-sm6 layui-col-xs6 merlin-header-item">
             <div class="merlin-header-update">
-                <label class="layui-text">正在更新<i class="layui-icon layui-icon-loading layui-icon layui-anim layui-anim-rotate layui-anim-loop"></i></label>
+                <!-- <label class="layui-text">正在更新<i class="layui-icon layui-icon-loading layui-icon layui-anim layui-anim-rotate layui-anim-loop"></i></label> -->
             </div>
         </div>
         <div class="layui-col-md3 layui-col-sm3 layui-col-xs3 merlin-header-item-btn">
-            <button class="layui-btn layui-btn-normal ">
+            <button class="layui-btn layui-btn-normal " onclick="refresh()">
                 <i class="layui-icon">&#xe669;</i> 更新
             </button>
         </div>
@@ -55,7 +55,7 @@
 <script src="./layui/layui.all.js"></script>
 <script>
 var layer = layui.layer;
-
+var timer;
 function show_photos(album_id) {
     $.getJSON(BACKEND_BASE_PATH + "/photos?album_id=" + album_id, function (json) {
         console.log(json);
@@ -64,6 +64,33 @@ function show_photos(album_id) {
             , anim: 5 //0-6的选择，指定弹出图片动画类型，默认随机（请注意，3.0之前的版本用shift参数）
         });
     }); 
+}
+
+function refresh() {
+    var index = layer.msg('xxx', {
+        area: ['200px', '50px'],
+        offset: 'rt',
+        time: 0,
+        content: '正在更新......'
+    }); 
+    $.ajax({
+        url: BACKEND_BASE_PATH + "/refresh",
+        success: function (res) {
+            timer = setInterval(function () {
+                $.ajax({
+                    url: BACKEND_BASE_PATH + "/over",
+                    success: function (res) {
+                        if(res.code == 0)
+                        {
+                            clearInterval(timer);
+                            layer.close(index);
+                            location.reload();
+                        }
+                    }
+                });
+            }, 3000);
+        }
+    });
 }
 
 //由于模块都一次性加载，因此不用执行 layui.use() 来加载对应模块，直接使用即可：
@@ -104,10 +131,10 @@ function show_photos(album_id) {
     });
 }();
 
-    layer.photos({
-        photos: '#layer-photos-demo'
-        , anim: 5 //0-6的选择，指定弹出图片动画类型，默认随机（请注意，3.0之前的版本用shift参数）
-    }); 
+    // layer.photos({
+    //     photos: '#layer-photos-demo'
+    //     , anim: 5 //0-6的选择，指定弹出图片动画类型，默认随机（请注意，3.0之前的版本用shift参数）
+    // }); 
 </script> 
 </body>
 </html>

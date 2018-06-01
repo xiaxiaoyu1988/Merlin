@@ -3,11 +3,31 @@
 import os
 import sys
 import math
-
+from Queue import Queue
 sys.path.append(r"../lisa/src")
 from lisa import App, route, wserver, redirect
 from provider.douban import Provider, Db
 import json
+
+wq = Queue(2)
+
+@route('/over')
+def over():
+    if os.path.exists('./doing'):
+        return '{"code":1}'
+    else:
+        return '{"code":0}'
+
+@route('/refresh')
+def refresh():
+    print 'set refresh flag'
+    wq.put(1)
+    try:
+        os.mkdir('./doing')
+    except Exception, e:
+        pass
+    print 'refresh msg send over'
+    return '{}'
 
 @route('/photos')
 def photos():
@@ -43,7 +63,7 @@ def album():
         return json.dumps(response)
 
     response['pages'] = pages
-    sql = 'select * from album order by datetime desc limit 8 offset ' + \
+    sql = 'select id,name,author_id from album order by id desc limit 8 offset ' + \
         str((int(page)-1) * 8)
     res = list(db.get(sql))
     print '-----res.data.len', len(res)
@@ -51,14 +71,19 @@ def album():
         response['data'].append({
             'id':row[0],
             'name':row[1],
-            'author_id':row[3],
-            'cover': get_cover(db, row[0])
+            'author_id':row[2],
+            'cover': get_cover(db, row[0], row[2])
         })
     # print response
     return json.dumps(response)
     
-def get_cover(db, album_id):
+
+def get_cover(db, album_id, author_id):
     res = db.get('select src from image where album_id = {0} and src != "" limit 1'.format(album_id))
+    for row in res:
+        return row[0]
+    
+    res = db.get('select avatar_src from author where id = {0}'.format(author_id))
     for row in res:
         return row[0]
 
@@ -73,8 +98,7 @@ def main():
     app = App(title="Merlin", width=900, height=520, icon="./client/Merlin.ico", frameless=False)
     client_path = "file://" + os.getcwd() + "/client/index.html"
     app.init(client_path, debug=True)
-
-    p = Provider()
+    p = Provider(wq)
     p.setDaemon(True)
     p.start()
 
