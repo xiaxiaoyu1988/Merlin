@@ -104,3 +104,4 @@ venv.bak/
 .mypy_cache/
 client/.DS_Store
 client/people/.DS_Store
+client/people
